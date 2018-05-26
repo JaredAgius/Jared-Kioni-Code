@@ -218,3 +218,81 @@ plot(v(:,DispIndex));ylabel('Disp.');xlabel('Filter no.')
  
 % End of main program
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ELEC3104: Project - Cochlear Signal Processing
+% Authors:  Jared Agius     z5113699
+%           Kioni Ndirangu  z5111826
+% Date:     27/05/18
+
+% This code implements the transfer functions for the outer and middle ear,
+% by placing poles and zeros
+
+function [Output] = MiddleEarGain(Input)
+%% Middle Ear
+%Zeros
+r1 = 0.55;
+r2 = 0.92;
+o1 = 2*pi*20/48;     
+o2 = 2*pi*0.1/48; 
+
+B1 = 4*conv([1,-2*r1*cos(o1),r1^2],[1,-2*r2*cos(o2),r2^2]);
+
+%Poles
+rp = 0.9;
+op = 2*pi*1/48;
+
+A1 = [1 -rp*2*cos(op) rp^2];
+
+%% Outer Ear
+%Zeros
+ro1 = 0.9;
+ro2 = 0.9;
+oo1 = 2*pi*0.1/48;           
+oo2 = 2*pi*10/48;
+
+B2 = 2.5*conv([1,-2*ro1*cos(oo1),ro1^2],[1,-2*ro2*cos(oo2),ro2^2]);
+
+%Poles
+rp1 = 0.95;
+op1 = 2*pi*2/48;
+
+A2 = [1 -rp1*2*cos(op1) rp1^2];
+
+%% Cascaded
+BT = 25*conv(B1,B2);
+AT = conv(A1,A2);
+
+Output = filter(BT,AT,Input);
+
+%Magnitude and Phase Spectra
+F = [100:10:10000];
+Fs = 48000;
+
+figure
+freqz(BT,AT,F,Fs);
+ax = findall(gcf, 'Type', 'axes');
+set(ax, 'XScale', 'log');
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ELEC3104: Project - Cochlear Signal Processing
+% Authors:  Jared Agius     z5113699
+%           Kioni Ndirangu  z5111826
+% Date:     27/05/18
+
+% Discrete Time Fourier Transform Function from Moodle-TutorialLab1 Solutions
+
+function [X1] = dtft( y, nfft)
+
+ylen = length(y); 
+w=linspace(-pi,pi,nfft);
+X1=0;
+
+    for n=1:ylen    
+         X1= X1+y(n).*exp(-1i*n*w); 
+    end
+
+end
+
+
